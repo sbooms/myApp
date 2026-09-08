@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CreatorBot — TikTok 연결</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    margin: 0; padding: 2rem 1.25rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    line-height: 1.6; background: #fbfbfc; color: #1c1c1e;
+  }
+  @media (prefers-color-scheme: dark) { body { background: #16181a; color: #e9eaec; } }
+  main { max-width: 34rem; margin: 0 auto; }
+  h1 { font-size: 1.35rem; margin: 0 0 .5rem; }
+  p { margin: 0 0 1rem; color: #5b6166; }
+  @media (prefers-color-scheme: dark) { p { color: #a2a9ae; } }
+  .code-box {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: .9rem; word-break: break-all; background: #fff; border: 1px solid #d8dcdf;
+    border-radius: 6px; padding: .85rem; margin-bottom: .75rem;
+  }
+  @media (prefers-color-scheme: dark) { .code-box { background: #1f2225; border-color: #343a3f; } }
+  button {
+    font: inherit; font-size: .95rem; background: #1c1c1e; color: #fff; border: none;
+    border-radius: 6px; padding: .6rem 1.1rem; cursor: pointer;
+  }
+  @media (prefers-color-scheme: dark) { button { background: #e9eaec; color: #16181a; } }
+  .status { font-size: .9rem; color: #5b6166; margin-left: .6rem; }
+  .error { color: #b42318; }
+  footer { margin-top: 2.5rem; font-size: .85rem; color: #8b9198; }
+  a { color: inherit; }
+</style>
+</head>
+<body>
+<main>
+  <h1>TikTok 연결</h1>
+  <div id="ok" hidden>
+    <p>아래 인증 코드를 복사해 CreatorBot 의 <strong>설정 &gt; 계정</strong> 화면에 붙여넣으세요.</p>
+    <div class="code-box" id="code"></div>
+    <button type="button" id="copy">코드 복사</button>
+    <span class="status" id="status"></span>
+    <p style="margin-top:1.25rem">주소창 전체를 복사해 붙여넣어도 됩니다.</p>
+  </div>
+  <div id="none" hidden>
+    <p>이 페이지는 CreatorBot 의 TikTok 계정 연결에 쓰입니다. 인증 코드가 주소에 없습니다 — CreatorBot 에서 연결을 다시 시작해 주세요.</p>
+  </div>
+  <div id="err" hidden>
+    <p class="error" id="errmsg"></p>
+    <p>CreatorBot 에서 연결을 다시 시작해 주세요.</p>
+  </div>
+  <footer>
+    <a href="./privacy.html">개인정보처리방침</a> · <a href="./terms.html">이용약관</a>
+  </footer>
+</main>
+<script>
+  (function () {
+    var q = new URLSearchParams(location.search);
+    var code = q.get("code");
+    var error = q.get("error");
+    var desc = q.get("error_description");
+    if (error) {
+      document.getElementById("errmsg").textContent = "인증이 취소되었거나 실패했습니다: " + error + (desc ? " — " + desc : "");
+      document.getElementById("err").hidden = false;
+      return;
+    }
+    if (!code) { document.getElementById("none").hidden = false; return; }
+    document.getElementById("code").textContent = code;
+    document.getElementById("ok").hidden = false;
+    document.getElementById("copy").addEventListener("click", function () {
+      var s = document.getElementById("status");
+      function done(ok) { s.textContent = ok ? "복사했습니다" : "복사에 실패했습니다 — 직접 선택해 복사하세요"; }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).then(function () { done(true); }).catch(function () { done(false); });
+      } else { done(false); }
+    });
+  })();
+</script>
+</body>
+</html>
